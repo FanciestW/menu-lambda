@@ -1,7 +1,4 @@
-require (
-	github.com/aws/aws-lambda-go v1.23.0
-	github.com/urfave/cli v1.22.1 // indirect
-)
+require github.com/aws/aws-lambda-go v1.23.0
 
 module menulambda
 

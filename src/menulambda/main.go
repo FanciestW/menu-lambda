@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -47,5 +48,17 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 }
 
 func main() {
-	lambda.Start(handler)
+	_, isLambda := os.LookupEnv("LAMBDA_TASK_ROOT")
+	if isLambda {
+		lambda.Start(handler)
+	} else {
+		var emptyRequest events.APIGatewayProxyRequest
+		res, err := handler(emptyRequest)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Println(res)
+		}
+	}
+
 }

@@ -29,6 +29,12 @@ Resources:
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
           PARAM1: VALUE
+      Tags:
+        App: MenuLambda
+        STAGE: DEV
+
+Tags:
+  App: MenuLambda
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -40,6 +46,6 @@ Outputs:
   MenuLambdaFunction:
     Description: "Menu Lambda Function ARN"
     Value: !GetAtt MenuLambdaFunction.Arn
-  # MenuLambdaFunctionIamRole:
-  #   Description: "Implicit IAM Role created for Menu Lambda function"
-  #   Value: !GetAtt MenuLambdaFunctionRole.Arn
+  MenuLambdaFunctionIamRole:
+    Description: "Implicit IAM Role created for Menu Lambda function"
+    Value: !GetAtt MenuLambdaFunctionRole.Arn
