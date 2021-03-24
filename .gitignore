@@ -16,3 +16,7 @@
 
 # AWS SAM
 **/.aws-sam
+
+# Ignore .env files
+**/*.env
+
