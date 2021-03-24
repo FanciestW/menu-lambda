@@ -20,9 +20,17 @@ var (
 
 	// ErrNon200Response non 200 status code in response
 	ErrNon200Response = errors.New("Non 200 Response found")
+
+	ErrNoSheetsAPIKey = errors.New("No Google Sheets API Key set in environment variables")
+
+	sheetsAPIKey, sheetsAPIKeyFound = os.LookupEnv("GOOGLE_SHEETS_API_KEY")
 )
 
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	if !sheetsAPIKeyFound {
+		return events.APIGatewayProxyResponse{}, ErrNoSheetsAPIKey
+	}
+
 	resp, err := http.Get(DefaultHTTPGetAddress)
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, err
