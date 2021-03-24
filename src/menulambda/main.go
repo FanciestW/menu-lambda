@@ -9,6 +9,9 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"golang.org/x/net/context"
+	"google.golang.org/api/option"
+	"google.golang.org/api/sheets/v4"
 )
 
 var (
@@ -30,6 +33,14 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	if !sheetsAPIKeyFound {
 		return events.APIGatewayProxyResponse{}, ErrNoSheetsAPIKey
 	}
+
+	ctx := context.Background()
+	sheetsService, err := sheets.NewService(ctx, option.WithAPIKey(sheetsAPIKey))
+	if err != nil {
+		return events.APIGatewayProxyResponse{}, err
+	}
+
+	// TODO::Use sheetsService (aka Google Sheets Client)
 
 	resp, err := http.Get(DefaultHTTPGetAddress)
 	if err != nil {
