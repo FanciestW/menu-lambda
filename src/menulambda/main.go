@@ -24,14 +24,16 @@ var (
 	// ErrNon200Response non 200 status code in response
 	ErrNon200Response = errors.New("Non 200 Response found")
 
-	ErrNoSheetsAPIKey = errors.New("No Google Sheets API Key set in environment variables")
-
 	sheetsAPIKey, sheetsAPIKeyFound = os.LookupEnv("GOOGLE_SHEETS_API_KEY")
+
+	spreadsheetID, spreadsheetIDFound = os.LookupEnv("SPREADSHEET_ID")
 )
 
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	if !sheetsAPIKeyFound {
-		return events.APIGatewayProxyResponse{}, ErrNoSheetsAPIKey
+		return events.APIGatewayProxyResponse{}, errors.New("GOOGLE_SHEETS_API_KEY is not set in environment variables")
+	} else if !spreadsheetIDFound {
+		return events.APIGatewayProxyResponse{}, errors.New("SPREADSHEET_ID is not set in environment variables")
 	}
 
 	ctx := context.Background()
@@ -41,6 +43,14 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	}
 
 	// TODO::Use sheetsService (aka Google Sheets Client)
+	spreadsheetService := sheets.NewSpreadsheetsService(sheetsService)
+	sheetResp, sheetErr := spreadsheetService.Get(spreadsheetID).Do()
+
+	if sheetErr != nil {
+		fmt.Println("Was unable to get the spreadsheet from SPREADSHEET_ID")
+	} else {
+		fmt.Println(sheetResp)
+	}
 
 	resp, err := http.Get(DefaultHTTPGetAddress)
 	if err != nil {
