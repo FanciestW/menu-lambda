@@ -3,8 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"os"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -15,17 +13,7 @@ import (
 )
 
 var (
-	// DefaultHTTPGetAddress Default Address
-	DefaultHTTPGetAddress = "https://checkip.amazonaws.com"
-
-	// ErrNoIP No IP found in response
-	ErrNoIP = errors.New("No IP in HTTP response")
-
-	// ErrNon200Response non 200 status code in response
-	ErrNon200Response = errors.New("Non 200 Response found")
-
-	sheetsAPIKey, sheetsAPIKeyFound = os.LookupEnv("GOOGLE_SHEETS_API_KEY")
-
+	sheetsAPIKey, sheetsAPIKeyFound   = os.LookupEnv("GOOGLE_SHEETS_API_KEY")
 	spreadsheetID, spreadsheetIDFound = os.LookupEnv("SPREADSHEET_ID")
 )
 
@@ -42,7 +30,6 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return events.APIGatewayProxyResponse{}, err
 	}
 
-	// TODO::Use sheetsService (aka Google Sheets Client)
 	spreadsheetService := sheets.NewSpreadsheetsService(sheetsService)
 	sheetResp, sheetErr := spreadsheetService.Get(spreadsheetID).Do()
 
@@ -52,26 +39,8 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		fmt.Println(sheetResp)
 	}
 
-	resp, err := http.Get(DefaultHTTPGetAddress)
-	if err != nil {
-		return events.APIGatewayProxyResponse{}, err
-	}
-
-	if resp.StatusCode != 200 {
-		return events.APIGatewayProxyResponse{}, ErrNon200Response
-	}
-
-	ip, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return events.APIGatewayProxyResponse{}, err
-	}
-
-	if len(ip) == 0 {
-		return events.APIGatewayProxyResponse{}, ErrNoIP
-	}
-
 	return events.APIGatewayProxyResponse{
-		Body:       fmt.Sprintf("Hello, %v", string(ip)),
+		Body:       fmt.Sprintf("Hello, World"),
 		StatusCode: 200,
 	}, nil
 }
