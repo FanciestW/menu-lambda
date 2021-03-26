@@ -32,11 +32,14 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 
 	spreadsheetService := sheets.NewSpreadsheetsService(sheetsService)
 	sheetResp, sheetErr := spreadsheetService.Get(spreadsheetID).Do()
+	// sheetResp, sheetErr := spreadsheetService.Values.Get(spreadsheetID, "Sheet1!A1:G200").Do()
 
 	if sheetErr != nil {
 		fmt.Println("Was unable to get the spreadsheet from SPREADSHEET_ID")
-	} else {
-		fmt.Println(sheetResp)
+	}
+
+	for index, element := range sheetResp.Sheets {
+		fmt.Printf("%d: %s\n", index, element.Properties.Title)
 	}
 
 	return events.APIGatewayProxyResponse{
