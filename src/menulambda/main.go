@@ -38,8 +38,12 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		fmt.Println("Was unable to get the spreadsheet from SPREADSHEET_ID")
 	}
 
-	for index, element := range sheetResp.Sheets {
-		fmt.Printf("%d: %s\n", index, element.Properties.Title)
+	var sectionSheet *sheets.Sheet
+	for i, sheetElement := range sheetResp.Sheets {
+		fmt.Printf("%d: %s\n", i, sheetElement.Properties.Title)
+		if sheetElement.Properties.Title == "Sections" {
+			sectionSheet = sheetElement
+		}
 	}
 
 	return events.APIGatewayProxyResponse{
