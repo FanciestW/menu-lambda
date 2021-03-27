@@ -30,9 +30,9 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return events.APIGatewayProxyResponse{}, err
 	}
 
+	// Get entire spreadsheet
 	spreadsheetService := sheets.NewSpreadsheetsService(sheetsService)
 	sheetResp, sheetErr := spreadsheetService.Get(spreadsheetID).Do()
-	// sheetResp, sheetErr := spreadsheetService.Values.Get(spreadsheetID, "Sheet1!A1:G200").Do()
 
 	if sheetErr != nil {
 		fmt.Println("Was unable to get the spreadsheet from SPREADSHEET_ID")
@@ -41,10 +41,24 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	var sectionSheet *sheets.Sheet
 	for i, sheetElement := range sheetResp.Sheets {
 		fmt.Printf("%d: %s\n", i, sheetElement.Properties.Title)
-		if sheetElement.Properties.Title == "Sections" {
+		if sheetElement.Properties.Title == "Sheet1" {
 			sectionSheet = sheetElement
 		}
 	}
+
+	fmt.Println(sectionSheet.Data)
+
+	for i, gridDataObj := range sectionSheet.Data {
+		fmt.Printf("%d: %s\n", i, gridDataObj.ColumnMetadata)
+	}
+
+	// Using Sheet Range
+	sheetResp2, sheetErr2 := spreadsheetService.Values.Get(spreadsheetID, "Sheet1!A1:G200").Do()
+	if sheetErr2 != nil {
+		fmt.Println("Was unable to get the spreadsheet from SPREADSHEET_ID")
+	}
+
+	fmt.Println(sheetResp2.Values)
 
 	return events.APIGatewayProxyResponse{
 		Body:       fmt.Sprintf("Hello, World"),
