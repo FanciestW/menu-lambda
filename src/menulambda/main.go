@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -35,7 +36,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	sheetResp, sheetErr := spreadsheetService.Get(spreadsheetID).Do()
 
 	if sheetErr != nil {
-		fmt.Println("Was unable to get the spreadsheet from SPREADSHEET_ID")
+		return events.APIGatewayProxyResponse{}, errors.New("Was unable to get the spreadsheet from SPREADSHEET_ID")
 	}
 
 	var sectionSheet *sheets.Sheet
@@ -55,10 +56,16 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	// Using Sheet Range
 	sheetResp2, sheetErr2 := spreadsheetService.Values.Get(spreadsheetID, "Sheet1!A1:G200").Do()
 	if sheetErr2 != nil {
-		fmt.Println("Was unable to get the spreadsheet from SPREADSHEET_ID")
+		return events.APIGatewayProxyResponse{}, errors.New("Was unable to get the spreadsheet from SPREADSHEET_ID")
 	}
 
-	fmt.Println(sheetResp2.Values)
+	marshalledJson, err := sheetResp2.MarshalJSON()
+	if err != nil {
+		return events.APIGatewayProxyResponse{}, errors.New("Was unable to get the spreadsheet from SPREADSHEET_ID")
+	}
+	var jsonResp map[string]interface{}
+	json.Unmarshal(marshalledJson, &jsonResp)
+	fmt.Println(jsonResp)
 
 	return events.APIGatewayProxyResponse{
 		Body:       fmt.Sprintf("Hello, World"),
