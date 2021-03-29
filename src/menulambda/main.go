@@ -65,7 +65,15 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	}
 	var jsonResp map[string]interface{}
 	json.Unmarshal(marshalledJson, &jsonResp)
-	fmt.Println(jsonResp)
+	// fmt.Println(jsonResp)
+
+	for i, row := range sheetResp2.Values {
+		fmt.Printf("Row %d: ", i)
+		for _, val := range row {
+			fmt.Printf("%s, ", val)
+		}
+		fmt.Println()
+	}
 
 	return events.APIGatewayProxyResponse{
 		Body:       fmt.Sprintf("Hello, World"),
