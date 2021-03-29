@@ -67,12 +67,11 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	json.Unmarshal(marshalledJson, &jsonResp)
 	// fmt.Println(jsonResp)
 
-	for i, row := range sheetResp2.Values {
-		fmt.Printf("Row %d: ", i)
-		for _, val := range row {
-			fmt.Printf("%s, ", val)
-		}
-		fmt.Println()
+	// var dataList []map[string]interface{}
+	labels := sheetResp2.Values[0]
+	fmt.Printf("%s\n", labels)
+	for i, row := range sheetResp2.Values[1:] {
+		fmt.Printf("Row %d: %s\n", i, row)
 	}
 
 	return events.APIGatewayProxyResponse{
