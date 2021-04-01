@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -72,14 +73,20 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		labels[i] = fmt.Sprint(label)
 	}
 	fmt.Printf("%s\n", labels)
-	return events.APIGatewayProxyResponse{}, nil
-	// var dataList []map[string]map[string]interface{}
+
+	var dataList []map[string]interface{}
 	for _, row := range sheetResp2.Values[1:] {
-		var tmpObj map[string]interface{}
+		var tmpObj map[string]interface{} = make(map[string]interface{})
 		for j, val := range row {
+			if val == nil || strings.TrimSpace(fmt.Sprint(val)) == "" {
+				continue
+			}
 			tmpObj[labels[j]] = val
 		}
+		dataList = append(dataList, tmpObj)
 	}
+
+	fmt.Println(dataList[0])
 
 	return events.APIGatewayProxyResponse{
 		Body:       fmt.Sprintf("Hello, World"),
