@@ -86,7 +86,14 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		dataList = append(dataList, tmpObj)
 	}
 
-	fmt.Println(dataList[0])
+	// Encode to JSON
+	dataMap := make(map[string][]map[string]interface{})
+	dataMap["data"] = dataList
+	jsonData, err := json.MarshalIndent(dataMap, "", "  ")
+	if err != nil {
+		return events.APIGatewayProxyResponse{}, errors.New("Unable to encode data into JSON format")
+	}
+	fmt.Println(string(jsonData))
 
 	return events.APIGatewayProxyResponse{
 		Body:       fmt.Sprintf("Hello, World"),
