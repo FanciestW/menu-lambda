@@ -32,35 +32,13 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return events.APIGatewayProxyResponse{}, err
 	}
 
-	// Get entire spreadsheet
 	spreadsheetService := sheets.NewSpreadsheetsService(sheetsService)
-	sheetResp, sheetErr := spreadsheetService.Get(spreadsheetID).Do()
-
+	sheetResp, sheetErr := spreadsheetService.Values.Get(spreadsheetID, "Sheet1!A1:G200").Do()
 	if sheetErr != nil {
 		return events.APIGatewayProxyResponse{}, errors.New("Was unable to get the spreadsheet from SPREADSHEET_ID")
 	}
 
-	var sectionSheet *sheets.Sheet
-	for i, sheetElement := range sheetResp.Sheets {
-		fmt.Printf("%d: %s\n", i, sheetElement.Properties.Title)
-		if sheetElement.Properties.Title == "Sheet1" {
-			sectionSheet = sheetElement
-		}
-	}
-
-	fmt.Println(sectionSheet.Data)
-
-	for i, gridDataObj := range sectionSheet.Data {
-		fmt.Printf("%d: %s\n", i, gridDataObj.ColumnMetadata)
-	}
-
-	// Using Sheet Range
-	sheetResp2, sheetErr2 := spreadsheetService.Values.Get(spreadsheetID, "Sheet1!A1:G200").Do()
-	if sheetErr2 != nil {
-		return events.APIGatewayProxyResponse{}, errors.New("Was unable to get the spreadsheet from SPREADSHEET_ID")
-	}
-
-	marshalledJson, err := sheetResp2.MarshalJSON()
+	marshalledJson, err := sheetResp.MarshalJSON()
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, errors.New("Was unable to get the spreadsheet from SPREADSHEET_ID")
 	}
@@ -68,14 +46,14 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	json.Unmarshal(marshalledJson, &jsonResp)
 	// fmt.Println(jsonResp)
 
-	var labels []string = make([]string, len(sheetResp2.Values[0]))
-	for i, label := range sheetResp2.Values[0] {
+	var labels []string = make([]string, len(sheetResp.Values[0]))
+	for i, label := range sheetResp.Values[0] {
 		labels[i] = fmt.Sprint(label)
 	}
 	fmt.Printf("%s\n", labels)
 
 	var dataList []map[string]interface{}
-	for _, row := range sheetResp2.Values[1:] {
+	for _, row := range sheetResp.Values[1:] {
 		var tmpObj map[string]interface{} = make(map[string]interface{})
 		for j, val := range row {
 			if val == nil || strings.TrimSpace(fmt.Sprint(val)) == "" {
