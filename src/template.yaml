@@ -26,6 +26,8 @@ Resources:
             Name: daily-schedule
             Description: Schedule to run daily, every 24 hours
             Enabled: false
+      Policies:
+        - arn:aws:iam::041540665129:policy/yangskitchen-s3-menu-role
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
           PARAM1: VALUE
