@@ -9,6 +9,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"golang.org/x/net/context"
 	"google.golang.org/api/option"
 	"google.golang.org/api/sheets/v4"
@@ -73,6 +74,21 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	}
 	fmt.Println(string(jsonData))
 
+	// AWS S3 PutObject
+	awsCreds := credentials.NewSharedCredentials("~/.aws/credentials", "default")
+	awsCredsValues, err := awsCreds.Get()
+	if err != nil {
+		return events.APIGatewayProxyResponse{}, errors.New("Unable to get AWS credentials")
+	}
+	fmt.Println(awsCredsValues.AccessKeyID)
+	fmt.Println(awsCredsValues.SecretAccessKey)
+	fmt.Println(awsCredsValues.SessionToken)
+
+	// s3Session, err := session.NewSession(&aws.Config{
+	// 	Region:      aws.String("us-east-1"),
+	// 	Credentials: credentials.NewEnvCredentials(),
+	// })
+
 	return events.APIGatewayProxyResponse{
 		Body:       fmt.Sprintf("Hello, World"),
 		StatusCode: 200,
@@ -80,6 +96,22 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 }
 
 func main() {
+	// AWS S3 PutObject
+	awsCreds := credentials.NewSharedCredentials("/Users/william/.aws/credentials", "default")
+	awsCredsValues, err := awsCreds.Get()
+	if err != nil {
+		fmt.Println("Unable to get AWS credentials")
+		return
+	}
+	fmt.Println(awsCredsValues.AccessKeyID)
+	fmt.Println(awsCredsValues.SecretAccessKey)
+	fmt.Println(awsCredsValues.SessionToken)
+
+	// s3Session, err := session.NewSession(&aws.Config{
+	// 	Region:      aws.String("us-east-1"),
+	// 	Credentials: credentials.NewEnvCredentials(),
+	// })
+	return
 	_, isLambda := os.LookupEnv("LAMBDA_TASK_ROOT")
 	if isLambda {
 		lambda.Start(handler)
