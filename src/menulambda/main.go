@@ -9,7 +9,10 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"golang.org/x/net/context"
 	"google.golang.org/api/option"
 	"google.golang.org/api/sheets/v4"
@@ -107,11 +110,28 @@ func main() {
 	fmt.Println(awsCredsValues.SecretAccessKey)
 	fmt.Println(awsCredsValues.SessionToken)
 
-	// s3Session, err := session.NewSession(&aws.Config{
-	// 	Region:      aws.String("us-east-1"),
-	// 	Credentials: credentials.NewEnvCredentials(),
-	// })
+	awsSession, err := session.NewSession(&aws.Config{
+		Region:      aws.String("us-east-1"),
+		Credentials: credentials.NewEnvCredentials(),
+	})
+	if err != nil {
+		fmt.Println("Unable to create AWS Session")
+		return
+	}
+	svc := s3.New(awsSession)
+	input := &s3.ListObjectsInput{
+		Bucket:  aws.String("yangskitchenma.com"),
+		Prefix:  aws.String("Menu/"),
+		MaxKeys: aws.Int64(100), // Max returned results
+	}
+	result, err := svc.ListObjects(input)
+	if err != nil {
+		fmt.Printf("Unable to get bucket objects with error:\n%s", err)
+		return
+	}
+	fmt.Println(result)
 	return
+
 	_, isLambda := os.LookupEnv("LAMBDA_TASK_ROOT")
 	if isLambda {
 		lambda.Start(handler)
