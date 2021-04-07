@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -119,17 +120,30 @@ func main() {
 		return
 	}
 	svc := s3.New(awsSession)
-	input := &s3.ListObjectsInput{
+	listObjectsInput := &s3.ListObjectsInput{
 		Bucket:  aws.String("yangskitchenma.com"),
 		Prefix:  aws.String("Menu/"),
 		MaxKeys: aws.Int64(100), // Max returned results
 	}
-	result, err := svc.ListObjects(input)
+	listRes, err := svc.ListObjects(listObjectsInput)
 	if err != nil {
 		fmt.Printf("Unable to get bucket objects with error:\n%s", err)
 		return
 	}
-	fmt.Println(result)
+	fmt.Println(listRes)
+
+	// S3 PutObject
+	putObjectInput := &s3.PutObjectInput{
+		Bucket: aws.String("yangskitchenma.com"),
+		Key:    aws.String("Menu/menu.json"),
+		Body:   bytes.NewReader([]byte("TEST")),
+	}
+	putRes, err := svc.PutObject(putObjectInput)
+	if err != nil {
+		fmt.Printf("Unable to put object with error:\n%s", err)
+		return
+	}
+	fmt.Println(putRes)
 	return
 
 	_, isLambda := os.LookupEnv("LAMBDA_TASK_ROOT")
