@@ -97,7 +97,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 
 func main() {
 	// AWS S3 PutObject
-	awsCreds := credentials.NewSharedCredentials("/Users/william/.aws/credentials", "default")
+	awsCreds := credentials.NewEnvCredentials()
 	awsCredsValues, err := awsCreds.Get()
 	if err != nil {
 		fmt.Println("Unable to get AWS credentials")
