@@ -78,20 +78,24 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	}
 	fmt.Println(string(jsonData))
 
-	// AWS S3 PutObject
-	awsCreds := credentials.NewSharedCredentials("~/.aws/credentials", "default")
-	awsCredsValues, err := awsCreds.Get()
+	awsCreds := credentials.NewEnvCredentials()
+	awsSession, err := session.NewSession(&aws.Config{
+		Region:      aws.String("us-east-1"),
+		Credentials: awsCreds,
+	})
 	if err != nil {
-		return events.APIGatewayProxyResponse{}, errors.New("Unable to get AWS credentials")
+		return events.APIGatewayProxyResponse{}, errors.New("Unable to create AWS Session")
 	}
-	fmt.Println(awsCredsValues.AccessKeyID)
-	fmt.Println(awsCredsValues.SecretAccessKey)
-	fmt.Println(awsCredsValues.SessionToken)
-
-	// s3Session, err := session.NewSession(&aws.Config{
-	// 	Region:      aws.String("us-east-1"),
-	// 	Credentials: credentials.NewEnvCredentials(),
-	// })
+	svc := s3.New(awsSession)
+	putObjectInput := &s3.PutObjectInput{
+		Bucket: aws.String("yangskitchenma.com"),
+		Key:    aws.String("Menu/menu.json"),
+		Body:   bytes.NewReader([]byte(string(jsonData))),
+	}
+	_, err = svc.PutObject(putObjectInput)
+	if err != nil {
+		return events.APIGatewayProxyResponse{}, errors.New(fmt.Sprintf("Unable to put object with error:\n%s", err))
+	}
 
 	return events.APIGatewayProxyResponse{
 		Body:       fmt.Sprintf("Hello, World"),
@@ -100,52 +104,6 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 }
 
 func main() {
-	// AWS S3 PutObject
-	awsCreds := credentials.NewEnvCredentials()
-	awsCredsValues, err := awsCreds.Get()
-	if err != nil {
-		fmt.Println("Unable to get AWS credentials")
-		return
-	}
-	fmt.Println(awsCredsValues.AccessKeyID)
-	fmt.Println(awsCredsValues.SecretAccessKey)
-	fmt.Println(awsCredsValues.SessionToken)
-
-	awsSession, err := session.NewSession(&aws.Config{
-		Region:      aws.String("us-east-1"),
-		Credentials: credentials.NewEnvCredentials(),
-	})
-	if err != nil {
-		fmt.Println("Unable to create AWS Session")
-		return
-	}
-	svc := s3.New(awsSession)
-	listObjectsInput := &s3.ListObjectsInput{
-		Bucket:  aws.String("yangskitchenma.com"),
-		Prefix:  aws.String("Menu/"),
-		MaxKeys: aws.Int64(100), // Max returned results
-	}
-	listRes, err := svc.ListObjects(listObjectsInput)
-	if err != nil {
-		fmt.Printf("Unable to get bucket objects with error:\n%s", err)
-		return
-	}
-	fmt.Println(listRes)
-
-	// S3 PutObject
-	putObjectInput := &s3.PutObjectInput{
-		Bucket: aws.String("yangskitchenma.com"),
-		Key:    aws.String("Menu/menu.json"),
-		Body:   bytes.NewReader([]byte("TEST")),
-	}
-	putRes, err := svc.PutObject(putObjectInput)
-	if err != nil {
-		fmt.Printf("Unable to put object with error:\n%s", err)
-		return
-	}
-	fmt.Println(putRes)
-	return
-
 	_, isLambda := os.LookupEnv("LAMBDA_TASK_ROOT")
 	if isLambda {
 		lambda.Start(handler)
