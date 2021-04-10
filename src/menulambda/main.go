@@ -11,7 +11,6 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"golang.org/x/net/context"
@@ -76,12 +75,10 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, errors.New("Unable to encode data into JSON format")
 	}
-	fmt.Println(string(jsonData))
 
-	awsCreds := credentials.NewEnvCredentials()
+	// awsCreds := credentials.NewEnvCredentials()
 	awsSession, err := session.NewSession(&aws.Config{
-		Region:      aws.String("us-east-1"),
-		Credentials: awsCreds,
+		Region: aws.String("us-east-1"),
 	})
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, errors.New("Unable to create AWS Session")
@@ -98,7 +95,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	}
 
 	return events.APIGatewayProxyResponse{
-		Body:       fmt.Sprintf("Hello, World"),
+		Body:       fmt.Sprintf("Updated menu.json"),
 		StatusCode: 200,
 	}, nil
 }
