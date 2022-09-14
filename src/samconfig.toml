@@ -8,3 +8,4 @@ s3_prefix = "menu-lambda"
 region = "us-east-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
+image_repositories = []

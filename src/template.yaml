@@ -22,9 +22,9 @@ Resources:
         CatchAll:
           Type: Schedule # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Schedule: rate(24 hours)
-            Name: daily-schedule
-            Description: Schedule to run daily, every 24 hours
+            Schedule: cron(0 4 0 * * ? *)
+            Name: everyday-schedule-menu-api
+            Description: Schedule to run every day at 02:00 UTC
             Enabled: false
       Policies:
         - arn:aws:iam::041540665129:policy/yangskitchen-s3-menu-role
